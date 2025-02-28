@@ -1,17 +1,14 @@
 import requests
 import time
 import boto3
+import config as cfg
 
 # Mapbox API credentials
-MAPBOX_ACCESS_TOKEN = "sk.eyJ1IjoidGhpYmF1bHR2YW5oZWVnaGUiLCJhIjoiY203cDAyeHhjMGdmOTJrcjNrdXpyb3RxZCJ9.9K-G7fb3SA4M_vbkAWhM0A"
-USERNAME = "thibaultvanheeghe"
-DATASET_ID = "thibaultvanheeghe.5dq5duqy"  # Get it from Mapbox Studio
-NEW_DATA_FILE = r"C:\Users\ThibaultVanheeghe\iCloudDrive\INTERRAIL\Train Data GIS\0merged_new.geojson"  # Path to new dataset
 
 
 # Step 1: Create an Upload URL
 def create_upload_url():
-    url = f"https://api.mapbox.com/uploads/v1/{USERNAME}/credentials?access_token={MAPBOX_ACCESS_TOKEN}"
+    url = f"https://api.mapbox.com/uploads/v1/{cfg.MB_USERNAME}/credentials?access_token={cfg.MB_ACCESS_TOKEN}"
     response = requests.post(url)
 
     if response.status_code == 200:
@@ -45,10 +42,10 @@ def upload_to_s3(upload_credentials, file_path):
 
 # Step 3: Notify Mapbox That the Upload is Ready
 def notify_mapbox(upload_credentials, dataset_id):
-    url = f"https://api.mapbox.com/uploads/v1/{USERNAME}?access_token={MAPBOX_ACCESS_TOKEN}"
+    url = f"https://api.mapbox.com/uploads/v1/{cfg.MB_USERNAME}?access_token={cfg.MB_ACCESS_TOKEN}"
     payload = {
         "url": upload_credentials["url"],
-        "tileset": f"{USERNAME}.{dataset_id}",
+        "tileset": f"{cfg.MB_USERNAME}.{cfg.MP_DATASET_ID}",
         "name": "Updated Dataset"
     }
 
@@ -71,7 +68,7 @@ def refresh_mapbox_dataset():
         return
 
     # Step 2: Upload File to S3
-    upload_to_s3(upload_credentials, NEW_DATA_FILE)
+    upload_to_s3(upload_credentials, cfg.NEW_DATA_FILE)
 
     # Step 3: Notify Mapbox
     dataset_id = "your_tileset_id"  # Replace with your dataset ID in Mapbox Studio
